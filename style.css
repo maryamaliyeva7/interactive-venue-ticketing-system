@@ -1,0 +1,87 @@
+* {
+    box-sizing: border-box;
+    }
+
+body {
+margin: 0;
+font-family: Arial, sans-serif;
+background-color: #f5f3ef;
+color: #292929;
+}
+
+.site-header {
+padding: 24px;
+text-align: center;
+background-color: #336178;
+color: white;
+}
+
+.site-header h1 {
+margin: 0 0 8px;
+}
+
+.site-header p {
+margin: 0;
+}
+
+main {
+width: min(1100px, 94%);
+margin: 30px auto;
+}
+
+section {
+margin-bottom: 24px;
+padding: 24px;
+background-color: white;
+border-radius: 12px;
+}
+
+h2 {
+margin-top: 0;
+}
+
+.intro {
+color: #666;
+}
+
+#venue-map {
+min-height: 200px;
+padding: 24px;
+text-align: center;
+background-color: #f5f3ef;
+border-radius: 8px;
+}
+
+button {
+padding: 10px 16px;
+border: none;
+border-radius: 6px;
+background-color: #336178;
+color: white;
+cursor: pointer;
+}
+
+button:disabled {
+background-color: #aaa;
+cursor: not-allowed;
+}
+
+#cart-total {
+font-size: 18px;
+font-weight: bold;
+}
+
+@media (max-width: 600px) {
+main {
+width: 96%;
+margin: 16px auto;
+}
+
+section {
+    padding: 16px;
+}
+.site-header {
+    padding: 20px 12px;
+}
+
+}
