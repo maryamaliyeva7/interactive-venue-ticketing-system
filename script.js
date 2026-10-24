@@ -12,6 +12,12 @@ const unavailableSeats = ["VIP-A3", "VIP-A4", "Standard-B5", "Economy-C7"];
 
 const venueMap = document.getElementById("venue-map");
 
+let selectedSeat = null;
+
+const seatMessage = document.getElementById("seat-message");
+const seatInfo = document.getElementById("seat-info");
+const addToCartButton = document.getElementById("add-to-cart");
+
 venueMap.innerHTML = "";
 venueSections.forEach(section => {
     const sectionTitle = document.createElement("h3");
@@ -27,6 +33,32 @@ venueSections.forEach(section => {
             seatButton.textContent = seat;
             seatButton.id = seatId;
             seatButton.classList.add("seat");
+            seatButton.addEventListener("click", () => {
+                if (seatButton.disabled) {
+                    return;
+                }
+                if (selectedSeat !== null) {
+                    document.getElementById(selectedSeat.id)
+                        .classList.remove("selected");
+                }
+                selectedSeat = {
+                    id: seatId,
+                    section: section.name,
+                    row: rowLabel,
+                    number: seat
+                };
+                seatButton.classList.add("selected");
+                seatMessage.textContent = "You've selected a seat to inspect.";
+            
+                seatInfo.innerHTML = `
+                    <p><strong>Section:</strong> ${selectedSeat.section}</p>
+                    <p><strong>Row:</strong> ${selectedSeat.row}</p>
+                    <p><strong>Seat:</strong> ${selectedSeat.number}</p>
+                    <p><strong>Price:</strong> ${ticketPrices[selectedSeat.section]} AZN</p>
+                `;
+                addToCartButton.disabled = false;
+            });
+
             if (unavailableSeats.includes(seatId)) {
                 seatButton.disabled = true;
                 seatButton.classList.add("unavailable");

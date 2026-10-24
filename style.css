@@ -194,6 +194,19 @@ button:focus-visible {
     cursor: not-allowed;
 }
 
+/* Selected seat */
+#venue-map .seat.selected {
+    border-color: #ad8c50;
+    background: var(--selected);
+    color: var(--navy);
+    box-shadow: 0 0 0 2px rgb(199 166 107 / 25%);
+}
+
+#venue-map .seat.selected:hover {
+    background: var(--selected);
+    border-color: #ad8c50;
+    color: var(--navy);
+}
 /* General buttons */
 
 button {
