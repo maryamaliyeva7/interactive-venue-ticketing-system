@@ -13,10 +13,69 @@ const unavailableSeats = ["VIP-A3", "VIP-A4", "Standard-B5", "Economy-C7"];
 const venueMap = document.getElementById("venue-map");
 
 let selectedSeat = null;
+let cart = [];
 
 const seatMessage = document.getElementById("seat-message");
 const seatInfo = document.getElementById("seat-info");
 const addToCartButton = document.getElementById("add-to-cart");
+const cartItems = document.getElementById("cart-items");
+const cartTotal = document.getElementById("cart-total");
+
+function renderCart() {
+    cartItems.innerHTML = "";
+
+    if (cart.length === 0) {
+        cartItems.innerHTML = "<p>Your cart is empty.</p>";
+    } else {
+        cart.forEach(ticket => {
+            const ticketElement = document.createElement("div");
+
+            ticketElement.classList.add("cart-item");
+
+            ticketElement.innerHTML = `
+                <p><strong>${ticket.section}</strong></p>
+                <p>Row: ${ticket.row}</p>
+                <p>Seat: ${ticket.number}</p>
+                <p>Price: ${ticket.price.toFixed(2)} AZN</p>
+            `;
+
+            cartItems.appendChild(ticketElement);
+        });
+    }
+
+    const total = cart.reduce((sum, ticket) => {
+        return sum + ticket.price;
+    }, 0);
+
+    cartTotal.textContent = `Total: ${total.toFixed(2)} AZN`;
+}
+
+addToCartButton.addEventListener("click", () => {
+    if (selectedSeat === null) {
+        return;
+    }
+
+    const alreadyInCart = cart.some(ticket => {
+        return ticket.id === selectedSeat.id;
+    });
+
+    if (alreadyInCart) {
+        seatMessage.textContent = "This seat is already in your cart.";
+        return;
+    }
+
+    const ticket = {
+        ...selectedSeat,
+        price: ticketPrices[selectedSeat.section]
+    };
+
+    cart.push(ticket);
+
+    renderCart();
+
+    seatMessage.textContent = "Seat added to your cart.";
+});
+
 
 venueMap.innerHTML = "";
 venueSections.forEach(section => {
