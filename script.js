@@ -13,7 +13,11 @@ const unavailableSeats = ["VIP-A3", "VIP-A4", "Standard-B5", "Economy-C7"];
 const venueMap = document.getElementById("venue-map");
 
 let selectedSeat = null;
-let cart = [];
+const savedCart = localStorage.getItem("venueCart");
+let cart = savedCart ? JSON.parse(savedCart) : [];
+function saveCart() {
+    localStorage.setItem("venueCart", JSON.stringify(cart));
+}
 
 const seatMessage = document.getElementById("seat-message");
 const seatInfo = document.getElementById("seat-info");
@@ -61,7 +65,7 @@ function renderCart() {
 
 function removeFromCart(seatId) {
     cart = cart.filter(ticket => ticket.id !== seatId);
-
+    saveCart();
     const seatButton = document.getElementById(seatId);
 
     if (seatButton) {
@@ -97,7 +101,7 @@ addToCartButton.addEventListener("click", () => {
     };
 
     cart.push(ticket);
-
+    saveCart();
     const seatButton = document.getElementById(ticket.id);
 
     if (seatButton) {
@@ -160,9 +164,13 @@ venueSections.forEach(section => {
             if (unavailableSeats.includes(seatId)) {
                 seatButton.disabled = true;
                 seatButton.classList.add("unavailable");
+            } else if (cart.some(ticket => ticket.id === seatId)) {
+                seatButton.disabled = true;
+                seatButton.classList.add("in-cart");
             }
             seatRow.appendChild(seatButton);
         }
         venueMap.appendChild(seatRow);
     }
 });
+renderCart();
