@@ -345,6 +345,11 @@ button {
     border-color: #ad8c50;
 }
 
+.in-cart-legend {
+    background: var(--navy);
+    border-color: var(--navy);
+}
+
 .cart-item {
     padding: 12px;
     margin-bottom: 10px;
@@ -355,4 +360,31 @@ button {
 
 .cart-item p {
     margin: 4px 0;
+}
+
+/* Seats that have been added to the cart */
+#venue-map .seat.in-cart {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: white;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+/* Remove ticket button */
+.remove-ticket {
+    margin-top: 8px;
+    padding: 7px 12px;
+    border: 1px solid #c77a7a;
+    border-radius: 4px;
+    background: transparent;
+    color: #a64b4b;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.remove-ticket:hover {
+    background: #a64b4b;
+    color: white;
 }

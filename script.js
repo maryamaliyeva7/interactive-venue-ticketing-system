@@ -33,13 +33,22 @@ function renderCart() {
             ticketElement.classList.add("cart-item");
 
             ticketElement.innerHTML = `
-                <p><strong>${ticket.section}</strong></p>
-                <p>Row: ${ticket.row}</p>
-                <p>Seat: ${ticket.number}</p>
-                <p>Price: ${ticket.price.toFixed(2)} AZN</p>
-            `;
+            <p><strong>${ticket.section}</strong></p>
+            <p>Row: ${ticket.row}</p>
+            <p>Seat: ${ticket.number}</p>
+            <p>Price: ${ticket.price.toFixed(2)} AZN</p>
+            <button class="remove-ticket" data-seat-id="${ticket.id}">
+                Remove
+            </button>
+        `;
 
             cartItems.appendChild(ticketElement);
+
+            const removeButton = ticketElement.querySelector(".remove-ticket");
+
+            removeButton.addEventListener("click", () => {
+            removeFromCart(ticket.id);
+            });
         });
     }
 
@@ -48,6 +57,24 @@ function renderCart() {
     }, 0);
 
     cartTotal.textContent = `Total: ${total.toFixed(2)} AZN`;
+}
+
+function removeFromCart(seatId) {
+    cart = cart.filter(ticket => ticket.id !== seatId);
+
+    const seatButton = document.getElementById(seatId);
+
+    if (seatButton) {
+        seatButton.classList.remove("in-cart");
+    
+        if (!unavailableSeats.includes(seatId)) {
+            seatButton.disabled = false;
+        }
+    }
+
+    renderCart();
+
+    seatMessage.textContent = "Ticket removed from your cart.";
 }
 
 addToCartButton.addEventListener("click", () => {
@@ -70,6 +97,18 @@ addToCartButton.addEventListener("click", () => {
     };
 
     cart.push(ticket);
+
+    const seatButton = document.getElementById(ticket.id);
+
+    if (seatButton) {
+    seatButton.classList.remove("selected");
+    seatButton.classList.add("in-cart");
+    seatButton.disabled = true;
+    }
+
+    selectedSeat = null;
+    seatInfo.innerHTML = "";
+    addToCartButton.disabled = true;
 
     renderCart();
 
