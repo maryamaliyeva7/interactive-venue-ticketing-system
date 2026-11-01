@@ -11,6 +11,54 @@ const venueSections = [
 const unavailableSeats = ["VIP-A3", "VIP-A4", "Standard-B5", "Economy-C7"];
 
 const venueMap = document.getElementById("venue-map");
+const zoomLevel = document.getElementById("zoom-level");
+
+let mapScale = 1;
+let mapOffsetX = 0;
+let mapOffsetY = 0;
+
+function updateMapView() {
+    venueMap.style.transform =
+        `translate(${mapOffsetX}px, ${mapOffsetY}px) scale(${mapScale})`;
+
+    zoomLevel.textContent = `${Math.round(mapScale * 100)}%`;
+}
+
+document.getElementById("zoom-in").addEventListener("click", () => {
+    mapScale = Math.min(mapScale + 0.1, 1.8);
+    updateMapView();
+});
+
+document.getElementById("zoom-out").addEventListener("click", () => {
+    mapScale = Math.max(mapScale - 0.1, 0.7);
+    updateMapView();
+});
+document.getElementById("move-up").addEventListener("click", () => {
+    mapOffsetY -= 30;
+    updateMapView();
+});
+
+document.getElementById("move-down").addEventListener("click", () => {
+    mapOffsetY += 30;
+    updateMapView();
+});
+
+document.getElementById("move-left").addEventListener("click", () => {
+    mapOffsetX -= 30;
+    updateMapView();
+});
+
+document.getElementById("move-right").addEventListener("click", () => {
+    mapOffsetX += 30;
+    updateMapView();
+});
+
+document.getElementById("reset-view").addEventListener("click", () => {
+    mapScale = 1;
+    mapOffsetX = 0;
+    mapOffsetY = 0;
+    updateMapView();
+});
 
 let selectedSeat = null;
 const savedCart = localStorage.getItem("venueCart");

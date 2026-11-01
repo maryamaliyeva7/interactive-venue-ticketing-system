@@ -39,9 +39,25 @@
                 <span>In Cart</span>
             </div>
         </div>
+        <div class="map-viewport">
+            <div id="venue-map">
+                <p>The venue map will appear here.</p>
+            </div>
         
-        <div id="venue-map">
-            <p>The venue map will appear here.</p>
+            <div class="map-controls" aria-label="Venue map controls">
+                <div class="pan-controls">
+                    <button type="button" id="move-up" class="up" aria-label="Move up">↑</button>
+                    <button type="button" id="move-left" class="left" aria-label="Move left">←</button>
+                    <button type="button" id="reset-view" class="reset" aria-label="Reset view">⟲</button>
+                    <button type="button" id="move-right" class="right" aria-label="Move right">→</button>
+                    <button type="button" id="move-down" class="down" aria-label="Move down">↓</button>
+                </div>
+                <div class="zoom-controls">
+                    <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+                    <output id="zoom-level" aria-live="polite">100%</output>
+                    <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+                </div>
+            </div>
         </div>
     </section>
     <section class="seat-details">
