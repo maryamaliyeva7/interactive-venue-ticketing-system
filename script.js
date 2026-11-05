@@ -61,8 +61,20 @@ document.getElementById("reset-view").addEventListener("click", () => {
 });
 
 let selectedSeat = null;
-const savedCart = localStorage.getItem("venueCart");
-let cart = savedCart ? JSON.parse(savedCart) : [];
+let cart = [];
+
+try {
+    const savedCart = localStorage.getItem("venueCart");
+    const parsedCart = savedCart ? JSON.parse(savedCart) : [];
+
+    if (Array.isArray(parsedCart)) {
+        cart = parsedCart;
+    } else {
+        localStorage.removeItem("venueCart");
+    }
+} catch {
+    localStorage.removeItem("venueCart");
+}
 function saveCart() {
     localStorage.setItem("venueCart", JSON.stringify(cart));
 }
