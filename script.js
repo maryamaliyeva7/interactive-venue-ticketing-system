@@ -122,22 +122,30 @@ function renderCart() {
 
     cartTotal.textContent = `Total: ${total.toFixed(2)} AZN`;
 }
-
 function removeFromCart(seatId) {
+    const removedTicket = cart.find(ticket => ticket.id === seatId);
     cart = cart.filter(ticket => ticket.id !== seatId);
     saveCart();
+
     const seatButton = document.getElementById(seatId);
 
     if (seatButton) {
         seatButton.classList.remove("in-cart");
-    
+
         if (!unavailableSeats.includes(seatId)) {
             seatButton.disabled = false;
         }
+
+        seatButton.setAttribute("aria-pressed", "false");
+
+        if (removedTicket) {
+            seatButton.setAttribute(
+                "aria-label",
+                `${removedTicket.section} section, row ${removedTicket.row}, seat ${removedTicket.number}, available`
+            );
+        }
     }
-
     renderCart();
-
     seatMessage.textContent = "Ticket removed from your cart.";
 }
 
@@ -168,6 +176,8 @@ addToCartButton.addEventListener("click", () => {
     seatButton.classList.remove("selected");
     seatButton.classList.add("in-cart");
     seatButton.disabled = true;
+    seatButton.setAttribute("aria-pressed", "false");
+    seatButton.setAttribute("aria-label",`${ticket.section} section, row ${ticket.row}, seat ${ticket.number}, in cart`);
     }
 
     selectedSeat = null;
@@ -194,22 +204,35 @@ venueSections.forEach(section => {
             const seatId = `${section.name}-${rowLabel}${seat}`;
             seatButton.textContent = seat;
             seatButton.id = seatId;
+            seatButton.setAttribute(
+                "aria-label",
+                `${section.name} section, row ${rowLabel}, seat ${seat}, available` );
+
+            seatButton.setAttribute("aria-pressed", "false");
             seatButton.classList.add("seat");
             seatButton.addEventListener("click", () => {
                 if (seatButton.disabled) {
                     return;
                 }
                 if (selectedSeat !== null) {
-                    document.getElementById(selectedSeat.id)
-                        .classList.remove("selected");
+                    const previousButton = document.getElementById(selectedSeat.id);
+                    previousButton.classList.remove("selected");
+                    previousButton.setAttribute("aria-pressed", "false");
+                    previousButton.setAttribute("aria-label",
+                        `${selectedSeat.section} section, row ${selectedSeat.row}, seat ${selectedSeat.number}, available`);
                 }
+
+                seatButton.classList.add("selected");
+                seatButton.setAttribute("aria-pressed", "true");
+                seatButton.setAttribute( "aria-label",
+                    `${section.name} section, row ${rowLabel}, seat ${seat}, selected`);
+
                 selectedSeat = {
                     id: seatId,
                     section: section.name,
                     row: rowLabel,
                     number: seat
                 };
-                seatButton.classList.add("selected");
                 seatMessage.textContent = "You've selected a seat to inspect.";
             
                 seatInfo.innerHTML = `
@@ -222,9 +245,16 @@ venueSections.forEach(section => {
             });
 
             if (unavailableSeats.includes(seatId)) {
+                seatButton.setAttribute(
+                    "aria-label",
+                    `${section.name} section, row ${rowLabel}, seat ${seat}, unavailable` );
+
                 seatButton.disabled = true;
                 seatButton.classList.add("unavailable");
             } else if (cart.some(ticket => ticket.id === seatId)) {
+                seatButton.setAttribute(
+                    "aria-label",
+                    `${section.name} section, row ${rowLabel}, seat ${seat}, in cart` );
                 seatButton.disabled = true;
                 seatButton.classList.add("in-cart");
             }
