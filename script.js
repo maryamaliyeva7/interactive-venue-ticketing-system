@@ -208,7 +208,7 @@ mapViewport.addEventListener("click", (event) => {
     event.stopImmediatePropagation();
 }, true);
 
-let selectedSeat = null;
+let selectedSeats = [];
 let cart = [];
 
 try {
@@ -232,6 +232,30 @@ const seatInfo = document.getElementById("seat-info");
 const addToCartButton = document.getElementById("add-to-cart");
 const cartItems = document.getElementById("cart-items");
 const cartTotal = document.getElementById("cart-total");
+
+function renderSelection() {
+    if (selectedSeats.length === 0) {
+        seatInfo.innerHTML = "";
+        seatMessage.textContent = "Select one or more available seats.";
+        addToCartButton.disabled = true;
+        addToCartButton.textContent = "Add Selected Seats to Cart";
+        return;
+    }
+
+    const selectedTotal = selectedSeats.reduce((sum, seat) => {
+        return sum + ticketPrices[seat.section];
+    }, 0);
+
+    seatMessage.textContent = `${selectedSeats.length} seat${selectedSeats.length === 1 ? "" : "s"} selected.`;
+    seatInfo.innerHTML = selectedSeats.map(seat => `
+        <p><strong>${seat.section}</strong> — Row ${seat.row}, Seat ${seat.number}: ${ticketPrices[seat.section].toFixed(2)} AZN</p>
+    `).join("") + `
+        <p><strong>Selected total:</strong> ${selectedTotal.toFixed(2)} AZN</p>
+    `;
+
+    addToCartButton.disabled = false;
+    addToCartButton.textContent = `Add ${selectedSeats.length} Seat${selectedSeats.length === 1 ? "" : "s"} to Cart`;
+}
 
 function renderCart() {
     cartItems.innerHTML = "";
@@ -298,43 +322,47 @@ function removeFromCart(seatId) {
 }
 
 addToCartButton.addEventListener("click", () => {
-    if (selectedSeat === null) {
+    if (selectedSeats.length === 0) {
         return;
     }
 
-    const alreadyInCart = cart.some(ticket => {
-        return ticket.id === selectedSeat.id;
+    const ticketsToAdd = selectedSeats.filter(seat => {
+        return !cart.some(ticket => ticket.id === seat.id);
     });
 
-    if (alreadyInCart) {
-        seatMessage.textContent = "This seat is already in your cart.";
+    if (ticketsToAdd.length === 0) {
+        seatMessage.textContent = "These seats are already in your cart.";
         return;
     }
 
-    const ticket = {
-        ...selectedSeat,
-        price: ticketPrices[selectedSeat.section]
-    };
+    ticketsToAdd.forEach(seat => {
+        const ticket = {
+            ...seat,
+            price: ticketPrices[seat.section]
+        };
 
-    cart.push(ticket);
+        cart.push(ticket);
+
+        const seatButton = document.getElementById(ticket.id);
+        if (seatButton) {
+            seatButton.classList.remove("selected");
+            seatButton.classList.add("in-cart");
+            seatButton.disabled = true;
+            seatButton.setAttribute("aria-pressed", "false");
+            seatButton.setAttribute(
+                "aria-label",
+                `${ticket.section} section, row ${ticket.row}, seat ${ticket.number}, in cart`
+            );
+        }
+    });
+
     saveCart();
-    const seatButton = document.getElementById(ticket.id);
-
-    if (seatButton) {
-    seatButton.classList.remove("selected");
-    seatButton.classList.add("in-cart");
-    seatButton.disabled = true;
-    seatButton.setAttribute("aria-pressed", "false");
-    seatButton.setAttribute("aria-label",`${ticket.section} section, row ${ticket.row}, seat ${ticket.number}, in cart`);
-    }
-
-    selectedSeat = null;
-    seatInfo.innerHTML = "";
-    addToCartButton.disabled = true;
+    const addedCount = ticketsToAdd.length;
+    selectedSeats = [];
+    renderSelection();
 
     renderCart();
-
-    seatMessage.textContent = "Seat added to your cart.";
+    seatMessage.textContent = `${addedCount} seat${addedCount === 1 ? "" : "s"} added to your cart.`;
 });
 
 
@@ -362,34 +390,37 @@ venueSections.forEach(section => {
                 if (seatButton.disabled) {
                     return;
                 }
-                if (selectedSeat !== null) {
-                    const previousButton = document.getElementById(selectedSeat.id);
-                    previousButton.classList.remove("selected");
-                    previousButton.setAttribute("aria-pressed", "false");
-                    previousButton.setAttribute("aria-label",
-                        `${selectedSeat.section} section, row ${selectedSeat.row}, seat ${selectedSeat.number}, available`);
+
+                const existingSelectionIndex = selectedSeats.findIndex(selectedSeat => {
+                    return selectedSeat.id === seatId;
+                });
+
+                if (existingSelectionIndex >= 0) {
+                    selectedSeats.splice(existingSelectionIndex, 1);
+                    seatButton.classList.remove("selected");
+                    seatButton.setAttribute("aria-pressed", "false");
+                    seatButton.setAttribute(
+                        "aria-label",
+                        `${section.name} section, row ${rowLabel}, seat ${seat}, available`
+                    );
+                } else {
+                    const seatSelection = {
+                        id: seatId,
+                        section: section.name,
+                        row: rowLabel,
+                        number: seat
+                    };
+
+                    selectedSeats.push(seatSelection);
+                    seatButton.classList.add("selected");
+                    seatButton.setAttribute("aria-pressed", "true");
+                    seatButton.setAttribute(
+                        "aria-label",
+                        `${section.name} section, row ${rowLabel}, seat ${seat}, selected`
+                    );
                 }
 
-                seatButton.classList.add("selected");
-                seatButton.setAttribute("aria-pressed", "true");
-                seatButton.setAttribute( "aria-label",
-                    `${section.name} section, row ${rowLabel}, seat ${seat}, selected`);
-
-                selectedSeat = {
-                    id: seatId,
-                    section: section.name,
-                    row: rowLabel,
-                    number: seat
-                };
-                seatMessage.textContent = "You've selected a seat to inspect.";
-            
-                seatInfo.innerHTML = `
-                    <p><strong>Section:</strong> ${selectedSeat.section}</p>
-                    <p><strong>Row:</strong> ${selectedSeat.row}</p>
-                    <p><strong>Seat:</strong> ${selectedSeat.number}</p>
-                    <p><strong>Price:</strong> ${ticketPrices[selectedSeat.section]} AZN</p>
-                `;
-                addToCartButton.disabled = false;
+                renderSelection();
             });
 
             if (unavailableSeats.includes(seatId)) {
@@ -411,4 +442,5 @@ venueSections.forEach(section => {
         venueMap.appendChild(seatRow);
     }
 });
+renderSelection();
 renderCart();

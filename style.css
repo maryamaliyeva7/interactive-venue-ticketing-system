@@ -390,15 +390,15 @@ button {
     }
 
     #venue-map > div {
-        justify-content: flex-start;
-        gap: 5px;
+        justify-content: center;
+        gap: 2px;
     }
 
     #venue-map .seat {
-        flex-basis: 24px;
-        width: 24px;
+        flex-basis: min(24px, calc((100% - 22px) / 12));
+        width: min(24px, calc((100% - 22px) / 12));
         height: 26px;
-        font-size: 9px;
+        font-size: clamp(7px, 2.3vw, 9px);
     }
 }
 /* Seat legend */
