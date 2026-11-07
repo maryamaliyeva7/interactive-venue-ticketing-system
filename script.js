@@ -17,10 +17,13 @@ let mapScale = 1;
 let mapOffsetX = 0;
 let mapOffsetY = 0;
 
-function updateMapView() {
+function updateMapTransform() {
     venueMap.style.transform =
         `translate(${mapOffsetX}px, ${mapOffsetY}px) scale(${mapScale})`;
+}
 
+function updateMapView() {
+    updateMapTransform();
     zoomLevel.textContent = `${Math.round(mapScale * 100)}%`;
 }
 
@@ -59,6 +62,151 @@ document.getElementById("reset-view").addEventListener("click", () => {
     mapOffsetY = 0;
     updateMapView();
 });
+
+const mapViewport = document.querySelector(".map-viewport");
+
+let isDraggingMap = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+let dragMoved = false;
+let suppressNextSeatClick = false;
+let dragRenderFrame = null;
+let wheelZoomResetTimer = null;
+let wheelZoomDirection = 0;
+let pinchGestureActive = false;
+let pinchStartScale = 1;
+let lastPinchGestureTime = 0;
+
+mapViewport.addEventListener("gesturestart", (event) => {
+    event.preventDefault();
+    pinchGestureActive = true;
+    pinchStartScale = mapScale;
+    lastPinchGestureTime = performance.now();
+    mapViewport.classList.add("is-zooming");
+    clearTimeout(wheelZoomResetTimer);
+    wheelZoomResetTimer = null;
+}, { passive: false });
+
+mapViewport.addEventListener("gesturechange", (event) => {
+    event.preventDefault();
+
+    if (!pinchGestureActive) return;
+
+    lastPinchGestureTime = performance.now();
+    mapScale = Math.min(1.8, Math.max(0.7, pinchStartScale * event.scale));
+    updateMapView();
+}, { passive: false });
+
+mapViewport.addEventListener("gestureend", (event) => {
+    event.preventDefault();
+    pinchGestureActive = false;
+    lastPinchGestureTime = performance.now();
+    mapViewport.classList.remove("is-zooming");
+}, { passive: false });
+
+mapViewport.addEventListener("wheel", (event) => {
+    event.preventDefault();
+
+    if (
+        pinchGestureActive ||
+        event.ctrlKey ||
+        performance.now() - lastPinchGestureTime < 250
+    ) {
+        clearTimeout(wheelZoomResetTimer);
+        wheelZoomResetTimer = null;
+        return;
+    }
+
+    if (event.deltaY === 0) return;
+
+    wheelZoomDirection = event.deltaY < 0 ? 1 : -1;
+
+    clearTimeout(wheelZoomResetTimer);
+    wheelZoomResetTimer = setTimeout(() => {
+        if (pinchGestureActive || performance.now() - lastPinchGestureTime < 250) {
+            wheelZoomResetTimer = null;
+            return;
+        }
+
+        mapScale = Math.min(1.8, Math.max(0.7, mapScale + wheelZoomDirection * 0.1));
+        updateMapView();
+        wheelZoomResetTimer = null;
+    }, 140);
+}, { passive: false });
+
+mapViewport.addEventListener("mousedown", (event) => {
+    if (event.button !== 0 || event.target.closest(".map-controls")) {
+        return;
+    }
+
+    event.preventDefault();
+    isDraggingMap = true;
+    dragStartX = event.clientX;
+    dragStartY = event.clientY;
+    dragOffsetX = mapOffsetX;
+    dragOffsetY = mapOffsetY;
+    dragMoved = false;
+});
+
+window.addEventListener("mousemove", (event) => {
+    if (!isDraggingMap) return;
+
+    const deltaX = event.clientX - dragStartX;
+    const deltaY = event.clientY - dragStartY;
+
+    if (!dragMoved && Math.hypot(deltaX, deltaY) < 5) return;
+
+    if (!dragMoved) {
+        dragMoved = true;
+        mapViewport.classList.add("is-dragging");
+    }
+
+    mapOffsetX = dragOffsetX + deltaX;
+    mapOffsetY = dragOffsetY + deltaY;
+
+    if (dragRenderFrame === null) {
+        dragRenderFrame = requestAnimationFrame(() => {
+            updateMapTransform();
+            dragRenderFrame = null;
+        });
+    }
+});
+
+function stopDraggingMap() {
+    if (!isDraggingMap) return;
+
+    isDraggingMap = false;
+
+    if (dragRenderFrame !== null) {
+        cancelAnimationFrame(dragRenderFrame);
+        dragRenderFrame = null;
+        updateMapTransform();
+    }
+
+    mapViewport.classList.remove("is-dragging");
+
+    if (dragMoved) {
+        suppressNextSeatClick = true;
+        setTimeout(() => {
+            suppressNextSeatClick = false;
+        }, 0);
+    }
+
+    dragMoved = false;
+}
+
+window.addEventListener("mouseup", stopDraggingMap);
+window.addEventListener("blur", stopDraggingMap);
+
+mapViewport.addEventListener("click", (event) => {
+    if (!suppressNextSeatClick) return;
+
+    suppressNextSeatClick = false;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+}, true);
 
 let selectedSeat = null;
 let cart = [];

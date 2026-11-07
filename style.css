@@ -108,6 +108,31 @@ h2 {
     background: #faf9f5;
     border: 1px solid #eae6dd;
     border-radius: 7px;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.map-viewport * {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.map-viewport.is-dragging {
+    cursor: grabbing;
+}
+
+.map-viewport .seat,
+.map-viewport .map-controls {
+    cursor: auto;
+}
+
+.map-viewport .seat {
+    cursor: pointer;
+}
+
+.map-viewport.is-dragging .seat {
+    cursor: grabbing;
 }
 
 #venue-map {
@@ -115,6 +140,12 @@ h2 {
     text-align: center;
     transform-origin: center center;
     transition: transform 180ms ease;
+}
+
+.map-viewport.is-dragging #venue-map,
+.map-viewport.is-zooming #venue-map {
+    transition: none;
+    will-change: transform;
 }
 
 .map-controls {
