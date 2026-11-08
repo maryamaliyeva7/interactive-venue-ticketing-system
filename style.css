@@ -60,6 +60,7 @@ main {
     gap: 20px;
     width: min(1200px, 94%);
     margin: 30px auto 45px;
+    grid-template-rows: auto 1fr;
 }
 
 section {
@@ -122,7 +123,6 @@ h2 {
     cursor: grabbing;
 }
 
-.map-viewport .seat,
 .map-viewport .map-controls {
     cursor: auto;
 }

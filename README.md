@@ -4,7 +4,7 @@ This is my Web & Mobile I project. It is a small theatre ticket booking demo. Vi
 
 ## About the venue
 
-The Island Theatre has 112 seats in three sections:
+Island Theatre has 112 seats in three sections:
 
 | Section | Layout | Seats | Price |
 | --- | ---: | ---: | ---: |
@@ -14,13 +14,15 @@ The Island Theatre has 112 seats in three sections:
 
 Four seats are marked unavailable on the map.
 
-## What it can do
+## Features
 
-- Shows details and prices for the seats you select.
-- Lets you select several seats and add them to the cart together. You can remove tickets and see the total update.
-- Saves the cart in the browser, so it is still there after a refresh.
-- Lets you zoom and move around the map with the buttons, mouse wheel, trackpad pinch, or by dragging.
-- Adjusts the layout for smaller screens and provides accessible labels for the seats.
+- View seat details and prices.
+- Select several seats and add them to the cart together.
+- Remove tickets and see the total update.
+- The cart stays saved after a refresh in localStorage.
+- Zoom and move around the map using the controls, mouse wheel, trackpad pinch, or dragging.
+- Responsive layout for smaller screens.
+- Seats have accessible labels.
 
 The seats are created from data in JavaScript. The project uses HTML, CSS, and JavaScript, with no extra packages or build step.
 
@@ -28,6 +30,5 @@ The seats are created from data in JavaScript. The project uses HTML, CSS, and J
 
 Open `index.html` in a browser. You can also open the project in Visual Studio Code and use the Live Server extension.
 
-## Repository
-
-Public GitHub repository: <https://github.com/maryamaliyeva7/interactive-venue-ticketing-system>
+## GitHub repository:
+<https://github.com/maryamaliyeva7/interactive-venue-ticketing-system>
